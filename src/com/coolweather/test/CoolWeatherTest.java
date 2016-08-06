@@ -2,10 +2,12 @@ package com.coolweather.test;
 
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.test.AndroidTestCase;
 
 import com.coolweather.db.CoolWeatherDB;
 import com.coolweather.model.Province;
+import com.coolweather.util.ParseUtility;
 
 public class CoolWeatherTest extends AndroidTestCase {
 
@@ -24,8 +26,8 @@ public class CoolWeatherTest extends AndroidTestCase {
 		CoolWeatherDB db = CoolWeatherDB.getInstance(getContext());
 		
 		db.saveProvince(province);
-		List list = db.loadProvinces();
-		assertEquals(2, list.size());
+		boolean flag = ParseUtility.handleProvinceResponse(db, "190990|beijing");
+		assertEquals(true, flag);
 	}
 
 	@Override
