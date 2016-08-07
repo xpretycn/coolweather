@@ -5,7 +5,10 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -39,9 +42,9 @@ public class ChooseAreaActivity extends Activity {
 	private CoolWeatherDB db;
 	private List<String> dataList = new ArrayList<String>();  //適配器數據列表
 	
-	private List<Province> provinceList;  //省列表
-	private List<City> cityList;   //市列表
-	private List<Country> countryList;  //賢列表
+//	private List<Province> provinceList;  //省列表
+//	private List<City> cityList;   //市列表
+//	private List<Country> countryList;  //賢列表
 	
 	private Province selectedProvince;  //當前選中的省
 	private City selectedCity;   //當前選中的市
@@ -51,17 +54,39 @@ public class ChooseAreaActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		final SharedPreferences.Editor editor = prefs.edit();
+		if (prefs.getBoolean("city_selected", false)) {
+		
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		
 		listView = (ListView) findViewById(R.id.list_view);
-		Log.v("In ChooseAreaActivity...", listView.toString());
+//		Log.v("In ChooseAreaActivity...", listView.toString());
 		textView = (TextView) findViewById(R.id.title_text);
 		adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, dataList);
 		listView.setAdapter(adapter);
 		db = CoolWeatherDB.getInstance(getApplicationContext());
 		
-		queryProvinces();  //加載省級資源
+//		queryProvinces();  //加載省級資源
+		dataList.add("苏州");
+		dataList.add("常熟");
+		dataList.add("张家港");
+		dataList.add("昆山");
+		dataList.add("吴县东山");
+		dataList.add("吴县");
+		dataList.add("吴江");
+		dataList.add("太仓");
+//		adapter.notifyDataSetChanged();
+		listView.setSelection(0);
+		textView.setText("苏州市");
 		
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -69,13 +94,20 @@ public class ChooseAreaActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
-				if (LEVEL_PROVINCE == currentLEVEL){
-					selectedProvince = provinceList.get(arg2);
+				/*if (LEVEL_PROVINCE == currentLEVEL){
+//					selectedProvince = provinceList.get(arg2);
 					queryCities();  //加載對應的市列表
 				}else if (LEVEL_CITY == currentLEVEL){  
 					selectedCity = cityList.get(arg2);
 					queryCountries();  //加載對應的賢列表
-				}
+				}*/
+				String countryName = dataList.get(arg2);
+				Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+				intent.putExtra("county_index", (arg2+1) + "");
+				editor.putString("country_index", (arg2+1) + "");
+				editor.commit();
+				startActivity(intent);
+				finish();
 			}
 
 			
@@ -84,61 +116,83 @@ public class ChooseAreaActivity extends Activity {
 	//查詢全國所有省，第一次從網絡查詢，以後從數據庫查詢（優先從數據庫查詢）
 	private void queryProvinces() {
 		// TODO Auto-generated method stub
-		provinceList = db.loadProvinces();
+	/*	provinceList = db.loadProvinces();
 		
-		if (provinceList.size() > 0){
+		if (provinceList.size() > 0){*/
 			dataList.clear();
 			
-			for(Province province : provinceList){
+			/*for(Province province : provinceList){
 				dataList.add(province.getProvinceName());
-			}
+			}*/
+			dataList.add("江苏");
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);   //調整到第一個位置
-			textView.setText("中國");
+			textView.setText("江苏");
 			currentLEVEL = LEVEL_PROVINCE;
-		}else{
+		/*}else{
 			queryFromServer(null, "province");
-		}
+		}*/
 		
 	}
 	
 	private void queryCities() {
 		// TODO Auto-generated method stub
-		cityList = db.loadCity(selectedProvince.getProvinceId());
+		/*cityList = db.loadCity(selectedProvince.getProvinceId());
 		
-		if (cityList.size() > 0){
+		if (cityList.size() > 0){*/
 			dataList.clear();
 			
-			for (City city : cityList){
+			/*for (City city : cityList){
 				dataList.add(city.getCityName());
-			}
+			}*/
+			dataList.add("南京");
+			dataList.add("无锡");
+			dataList.add("镇江");
+			dataList.add("苏州");
+			dataList.add("南通");
+			dataList.add("扬州");
+			dataList.add("盐城");
+			dataList.add("徐州");
+			dataList.add("淮安");
+			dataList.add("连云港");
+			dataList.add("常州");
+			dataList.add("泰州");
+			dataList.add("宿迁");
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
 			textView.setText(selectedProvince.getProvinceName());
 			currentLEVEL = LEVEL_CITY;
-		}else{
+		/*}else{
 			queryFromServer(selectedProvince.getProvinceCode(), "city");
-		}
+		}*/
 		
 	}
 
 	private void queryCountries() {
 		// TODO Auto-generated method stub
-		countryList = db.loadCountry(selectedCity.getCityId());
+		/*countryList = db.loadCountry(selectedCity.getCityId());
 		
-		if (countryList.size() > 0){
+		if (countryList.size() > 0){*/
 			dataList.clear();
 			
-			for (Country country : countryList){
+			/*for (Country country : countryList){
 				dataList.add(country.getCountryName());
-			}
+			}*/
+			dataList.add("苏州");
+			dataList.add("常熟");
+			dataList.add("张家港");
+			dataList.add("昆山");
+			dataList.add("吴县东山");
+			dataList.add("吴县");
+			dataList.add("吴江");
+			dataList.add("太仓");
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
 			textView.setText(selectedCity.getCityName());
 			currentLEVEL = LEVEL_COUNTRY;
-		}else{
+		/*}else{
 			queryFromServer(selectedCity.getCityCode(), "country");
-		}
+		}*/
 	}
 	
 	
@@ -151,7 +205,7 @@ public class ChooseAreaActivity extends Activity {
 		// TODO Auto-generated method stub
 		String addr;
 		
-		Log.v("queryFromServer......", "code = " + code + "  " + "String = " + string);
+//		Log.v("queryFromServer......", "code = " + code + "  " + "String = " + string);
 		
 		if (TextUtils.isEmpty(code)){
 			
@@ -160,7 +214,7 @@ public class ChooseAreaActivity extends Activity {
 			addr = "http://www.weather.com.cn/data/list3/city" + code + ".xml";
 		}
 		showProgressDialog();
-		Log.v("queryFromServer......", "addr = " + addr);
+//		Log.v("queryFromServer......", "addr = " + addr);
 		HttpUtil.sendHttpRequest(addr, new HttpCallBackListener() {
 			
 			@Override
@@ -175,7 +229,7 @@ public class ChooseAreaActivity extends Activity {
 				}else if ("country".equals(string)){
 					result = ParseUtility.handleCountryResponse(db, response, selectedCity.getCityId());
 				}
-				Log.v("result......", "result = " + result);
+//				Log.v("result......", "result = " + result);
 				if (result){
 					//通過runOnUiThread()方法回到主線程處理邏輯
 					runOnUiThread(new Runnable() {
@@ -220,7 +274,7 @@ public class ChooseAreaActivity extends Activity {
 			progressDialog = new ProgressDialog(getApplicationContext());
 			progressDialog.setMessage("正在加載...");
 			progressDialog.setCanceledOnTouchOutside(false);
-			Log.v("In showProgressDialog......", progressDialog.toString());
+//			Log.v("In showProgressDialog......", progressDialog.toString());
 		}
 		progressDialog.show();
 	}
